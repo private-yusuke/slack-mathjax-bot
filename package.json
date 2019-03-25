@@ -1,0 +1,17 @@
+{
+  "name": "slack-mathjax-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "built/index.js",
+  "scripts": {
+    "test": "tsc && echo ok && exit 0"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/client": "^4.12.0",
+    "mathjax-node": "^2.1.1",
+    "svg2png": "^4.1.1",
+    "typescript": "^3.3.4000"
+  }
+}
