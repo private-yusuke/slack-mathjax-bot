@@ -31,10 +31,13 @@ async function main() {
       format: type,
       svg: true
     })
-    let image = await svg2png(out.svg, {
-      width: out.width.slice(0, -2) * SIZE,
-      height: out.height.slice(0, -2) * SIZE
-    })
+    let image
+    try {
+        image = await svg2png(out.svg, {
+        width: out.width.slice(0, -2) * SIZE,
+        height: out.height.slice(0, -2) * SIZE
+      })
+    } catch(e) {}
     return image
   }
 
@@ -54,6 +57,7 @@ async function main() {
           text: `Failed to render: ${e}`,
           as_user: true
         })
+        return
       }
 
       await web.files.upload({
