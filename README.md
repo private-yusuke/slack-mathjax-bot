@@ -1,6 +1,7 @@
 # slack-mathjax-bot
 
 A useful bot
+[![Build Status](https://travis-ci.com/private-yusuke/slack-mathjax-bot.svg?branch=master)](https://travis-ci.com/private-yusuke/slack-mathjax-bot)
 
 # How to Use
 
