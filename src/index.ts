@@ -1,6 +1,8 @@
 import { WebClient, RTMClient, LogLevel } from '@slack/client'
 const mj = require('mathjax-node')
 const svg2png = require('svg2png')
+import { AllHtmlEntities } from 'html-entities'
+const entities = new AllHtmlEntities()
 
 mj.start()
 let token = require('../token.json').token
@@ -15,7 +17,8 @@ const SIZE = 20
 async function main() {
   async function generateImage(type: string, formula: string) {
     switch(type) {
-      case 'tex' || 'latex':
+      case 'tex':
+      case 'latex':
         type = 'TeX'
         break
       case 'ascii':
@@ -40,9 +43,18 @@ async function main() {
     let matches = mes.text.match(regex)
     if(matches) {
       let type = matches[1]
-      let formula = decodeURI(matches[2])
+      let formula = entities.decode(matches[2])
       console.log(`type: ${type}, formula: ${formula}`)
-      let image = await generateImage(type, formula)
+      let image
+      try {
+        image = await generateImage(type, formula)
+      } catch(e) {
+        await web.chat.postMessage({
+          channel: mes.channel,
+          text: `Failed to render: ${e}`,
+          as_user: true
+        })
+      }
 
       await web.files.upload({
         title: `${formula}`,
