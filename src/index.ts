@@ -2,6 +2,7 @@ import { WebClient, RTMClient, LogLevel } from '@slack/client'
 const mj = require('mathjax-node')
 const svg2png = require('svg2png')
 import { AllHtmlEntities } from 'html-entities'
+const asciimath2latex = require('asciimath-to-latex')
 const entities = new AllHtmlEntities()
 
 mj.start()
@@ -11,7 +12,7 @@ let web = new WebClient(token, {logLevel: LogLevel.INFO})
 rtm.start()
 console.log('rtm connected')
 
-let regex = /^(ascii|tex|latex):(.+?)$/
+let regex = /^(ascii|tex|latex|atol):(.+?)$/
 const SIZE = 20
 
 async function main() {
@@ -48,25 +49,34 @@ async function main() {
       let type = matches[1]
       let formula = entities.decode(matches[2])
       console.log(`type: ${type}, formula: ${formula}`)
-      let image
-      try {
-        image = await generateImage(type, formula)
-      } catch(e) {
+
+      if(type != 'atol') {
+        let image
+        try {
+          image = await generateImage(type, formula)
+        } catch(e) {
+          await web.chat.postMessage({
+            channel: mes.channel,
+            text: `Failed to render: ${e}`,
+            as_user: true
+          })
+          return
+        }
+
+        await web.files.upload({
+          title: `${formula}`,
+          file: image,
+          channels: mes.channel,
+          filename: `${formula}.png`,
+        })
+      } else {
         await web.chat.postMessage({
           channel: mes.channel,
-          text: `Failed to render: ${e}`,
+          text: asciimath2latex(formula),
           as_user: true
         })
         return
-      }
-
-      await web.files.upload({
-        title: `${formula}`,
-        file: image,
-        channels: mes.channel,
-        filename: `${formula}.png`,
-      })
-      
+      } 
     }
   })
 }
